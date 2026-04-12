@@ -1,0 +1,113 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Stores user biometric data and fitness goals.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "age": { "type": "number" },
+        "sex": { "type": "string", "enum": ["male", "female", "other"] },
+        "height": { "type": "number" },
+        "weight": { "type": "number" },
+        "goal": { "type": "string", "enum": ["bulk", "cut", "maintain", "recomposition"] },
+        "activityLevel": { "type": "string", "enum": ["sedentary", "light", "moderate", "active", "very_active"] },
+        "trainingStyle": { "type": "string", "enum": ["bodybuilding", "powerlifting", "crossfit", "calisthenics", "general_fitness"] },
+        "onboarded": { "type": "boolean" },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["uid", "email", "onboarded"]
+    },
+    "MealLog": {
+      "title": "Meal Log",
+      "description": "Structured record of a meal intake.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "timestamp": { "type": "number" },
+        "mealType": { "type": "string", "enum": ["breakfast", "lunch", "dinner", "snack"] },
+        "items": { "type": "array", "items": { "type": "object" } },
+        "totalCalories": { "type": "number" },
+        "totalProtein": { "type": "number" },
+        "totalCarbs": { "type": "number" },
+        "totalFat": { "type": "number" },
+        "inputSource": { "type": "string" },
+        "confidenceScore": { "type": "number" }
+      },
+      "required": ["userId", "timestamp", "totalCalories"]
+    },
+    "WorkoutLog": {
+      "title": "Workout Log",
+      "description": "Structured record of a gym session.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "timestamp": { "type": "number" },
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "exercises": { "type": "array", "items": { "type": "object" } },
+        "volume": { "type": "number" },
+        "intensity": { "type": "number" }
+      },
+      "required": ["userId", "timestamp", "name"]
+    },
+    "DailySummary": {
+      "title": "Daily Summary",
+      "description": "Aggregated daily metrics for the dashboard.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "date": { "type": "string" },
+        "caloriesConsumed": { "type": "number" },
+        "caloriesTarget": { "type": "number" },
+        "proteinConsumed": { "type": "number" },
+        "proteinTarget": { "type": "number" },
+        "waterIntake": { "type": "number" },
+        "steps": { "type": "number" },
+        "weight": { "type": "number" },
+        "workoutCompleted": { "type": "boolean" },
+        "recoveryScore": { "type": "number" }
+      },
+      "required": ["userId", "date"]
+    },
+    "Alert": {
+      "title": "Alert",
+      "description": "Actionable notifications for the user.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "timestamp": { "type": "number" },
+        "type": { "type": "string", "enum": ["info", "warning", "success", "error"] },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "read": { "type": "boolean" }
+      },
+      "required": ["userId", "timestamp", "title"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile document."
+    },
+    "/users/{userId}/meals/{mealId}": {
+      "schema": "MealLog",
+      "description": "Collection of meal logs for a user."
+    },
+    "/users/{userId}/workouts/{workoutId}": {
+      "schema": "WorkoutLog",
+      "description": "Collection of workout logs for a user."
+    },
+    "/users/{userId}/summaries/{date}": {
+      "schema": "DailySummary",
+      "description": "Daily aggregated stats."
+    },
+    "/users/{userId}/alerts/{alertId}": {
+      "schema": "Alert",
+      "description": "User notifications."
+    }
+  }
+}

@@ -1,0 +1,361 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* ============================================================
+   KINETIC OBSIDIAN — Design Tokens (GymPilot AI)
+   Design Philosophy: "The Kinetic Atelier"
+   Fonts: Lexend (headlines) + Inter (body)
+   ============================================================ */
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* --- Fonts --- */
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-headline: 'Lexend', system-ui, sans-serif;
+
+  /* --- Core Palette --- */
+  --color-surface: #0e0e0e;
+  --color-surface-dim: #0e0e0e;
+  --color-surface-container-lowest: #000000;
+  --color-surface-container-low: #131313;
+  --color-surface-container: #1a1a1a;
+  --color-surface-container-high: #20201f;
+  --color-surface-container-highest: #262626;
+  --color-surface-variant: #262626;
+  --color-surface-bright: #2c2c2c;
+
+  --color-primary: #f3ffca;
+  --color-primary-container: #cafd00;
+  --color-primary-fixed: #cafd00;
+  --color-primary-fixed-dim: #beee00;
+  --color-primary-dim: #beee00;
+  --color-on-primary: #516700;
+  --color-on-primary-container: #4a5e00;
+  --color-on-primary-fixed: #3a4a00;
+
+  --color-secondary: #00eefc;
+  --color-secondary-container: #006970;
+  --color-secondary-fixed: #00eefc;
+  --color-secondary-fixed-dim: #00deec;
+  --color-secondary-dim: #00deec;
+  --color-on-secondary: #005359;
+  --color-on-secondary-container: #e3fdff;
+
+  --color-tertiary: #ffeea5;
+  --color-tertiary-container: #fce047;
+  --color-tertiary-fixed: #fce047;
+  --color-tertiary-fixed-dim: #edd13a;
+  --color-tertiary-dim: #edd13a;
+  --color-on-tertiary: #665800;
+
+  --color-error: #ff7351;
+  --color-error-dim: #d53d18;
+  --color-error-container: #b92902;
+  --color-on-error: #450900;
+  --color-on-error-container: #ffd2c8;
+
+  --color-on-surface: #ffffff;
+  --color-on-surface-variant: #adaaaa;
+  --color-on-background: #ffffff;
+  --color-background: #0e0e0e;
+
+  --color-outline: #767575;
+  --color-outline-variant: #484847;
+
+  --color-inverse-surface: #fcf9f8;
+  --color-inverse-on-surface: #565555;
+  --color-inverse-primary: #516700;
+  --color-surface-tint: #f3ffca;
+
+  /* shadcn mapping */
+  --color-background: #0e0e0e;
+  --color-foreground: #ffffff;
+  --color-card: #1a1a1a;
+  --color-card-foreground: #ffffff;
+  --color-popover: #1a1a1a;
+  --color-popover-foreground: #ffffff;
+  --color-primary: #cafd00;
+  --color-primary-foreground: #0e0e0e;
+  --color-secondary: #20201f;
+  --color-secondary-foreground: #ffffff;
+  --color-muted: #20201f;
+  --color-muted-foreground: #adaaaa;
+  --color-accent: #262626;
+  --color-accent-foreground: #ffffff;
+  --color-destructive: #ff7351;
+  --color-border: rgba(255,255,255,0.08);
+  --color-input: rgba(255,255,255,0.06);
+  --color-ring: #cafd00;
+
+  /* chart colors */
+  --color-chart-1: #cafd00;
+  --color-chart-2: #00eefc;
+  --color-chart-3: #ffeea5;
+  --color-chart-4: #ff7351;
+  --color-chart-5: #adaaaa;
+
+  /* sidebar */
+  --color-sidebar: #1a1a1a;
+  --color-sidebar-foreground: #ffffff;
+  --color-sidebar-primary: #cafd00;
+  --color-sidebar-primary-foreground: #0e0e0e;
+  --color-sidebar-accent: #20201f;
+  --color-sidebar-accent-foreground: #ffffff;
+  --color-sidebar-border: rgba(255,255,255,0.06);
+  --color-sidebar-ring: #cafd00;
+
+  /* Border radius — "Technical Precision", max xl */
+  --radius-sm: 0.125rem;
+  --radius-md: 0.25rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius: 0.5rem;
+}
+
+/* ============================================================
+   GLOBAL BASE
+   ============================================================ */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  body {
+    background-color: #0e0e0e;
+    color: #ffffff;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  /* Custom scrollbar — Kinetic Obsidian */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: #0e0e0e; }
+  ::-webkit-scrollbar-thumb { background: #262626; border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: #484847; }
+
+  /* Selection */
+  ::selection {
+    background-color: rgba(202, 253, 0, 0.2);
+    color: #ffffff;
+  }
+
+  /* Autofill override */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #ffffff;
+    -webkit-box-shadow: 0 0 0px 1000px #0e0e0e inset;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+}
+
+/* ============================================================
+   UTILITY CLASSES
+   ============================================================ */
+@layer utilities {
+  /* Glass panel — for header, bottom nav, modals */
+  .glass-panel {
+    background: rgba(14, 14, 14, 0.65);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .glass-card {
+    background: rgba(26, 26, 26, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* Neon glow shadows */
+  .shadow-neon-lime {
+    box-shadow: 0 8px 24px rgba(202, 253, 0, 0.25), 0 0 0 1px rgba(202, 253, 0, 0.1);
+  }
+
+  .shadow-neon-lime-sm {
+    box-shadow: 0 4px 12px rgba(202, 253, 0, 0.15);
+  }
+
+  .shadow-neon-cyan {
+    box-shadow: 0 0 20px rgba(0, 238, 252, 0.2);
+  }
+
+  .shadow-neon-primary {
+    box-shadow: 0 0 24px rgba(202, 253, 0, 0.08);
+    filter: blur(0);
+  }
+
+  /* Text neon glow */
+  .text-neon-glow {
+    text-shadow: 0 0 15px rgba(202, 253, 0, 0.4);
+  }
+
+  /* Typography — Kinetic Editorial */
+  .font-headline { font-family: 'Lexend', sans-serif; }
+  .tracking-editorial { letter-spacing: -0.02em; }
+
+  /* Tonal card — preferred over border */
+  .card-surface {
+    background-color: #1a1a1a;
+    border-radius: 0.5rem;
+  }
+
+  .card-surface-high {
+    background-color: #20201f;
+    border-radius: 0.5rem;
+  }
+
+  /* Ghost border — for data tables, use sparingly */
+  .ghost-border {
+    border: 1px solid rgba(72, 72, 71, 0.15);
+  }
+
+  /* Biometric ring rotation */
+  .biometric-ring {
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+  }
+
+  /* Scroll-driven reveal */
+  .reveal-on-scroll {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  .reveal-on-scroll.revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================
+   KEYFRAME ANIMATIONS
+   ============================================================ */
+@keyframes pulse-neon {
+  0%, 100% { box-shadow: 0 0 8px rgba(202, 253, 0, 0.3); }
+  50% { box-shadow: 0 0 24px rgba(202, 253, 0, 0.6); }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+  from { background-position: -200% center; }
+  to { background-position: 200% center; }
+}
+
+@keyframes draw-ring {
+  from { stroke-dashoffset: 251.2; }
+  to { stroke-dashoffset: var(--ring-offset, 62.8); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+/* Animation utilities */
+.animate-pulse-neon { animation: pulse-neon 2s ease-in-out infinite; }
+.animate-spin-slow { animation: spin-slow 3s linear infinite; }
+.animate-slide-up { animation: slide-up 0.5s ease forwards; }
+.animate-slide-in-right { animation: slide-in-right 0.4s ease forwards; }
+.animate-fade-in { animation: fade-in 0.4s ease forwards; }
+.animate-scale-in { animation: scale-in 0.3s ease forwards; }
+.animate-float { animation: float 3s ease-in-out infinite; }
+.animate-draw-ring { animation: draw-ring 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+
+/* Shimmer skeleton */
+.shimmer {
+  background: linear-gradient(90deg, #1a1a1a 25%, #262626 50%, #1a1a1a 75%);
+  background-size: 200% auto;
+  animation: shimmer 1.5s linear infinite;
+}
+
+/* Stagger delays */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================
+   COMPONENT OVERRIDES
+   ============================================================ */
+
+/* Progress bar — lime fill */
+[data-slot="progress-indicator"] {
+  background-color: #cafd00 !important;
+}
+
+/* Input bottom-border style (design system pattern) */
+.input-minimal {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(72, 72, 71, 0.3);
+  border-radius: 0;
+  padding: 1rem 0;
+  font-family: 'Lexend', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  outline: none;
+  transition: border-color 200ms ease;
+  width: 100%;
+}
+
+.input-minimal:focus {
+  border-bottom-color: #cafd00;
+}
+
+.input-minimal::placeholder {
+  color: #262626;
+}
+
+/* Tabs */
+[data-state="active"][data-slot="tabs-trigger"] {
+  background-color: #cafd00 !important;
+  color: #0e0e0e !important;
+  font-weight: 700;
+}

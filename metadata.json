@@ -1,0 +1,5 @@
+{
+  "name": "GymPilot AI",
+  "description": "A visual, preset-first, agentic AI gym and nutrition coach optimized for speed and mobile-first usability.",
+  "requestFramePermissions": ["camera", "microphone"]
+}
