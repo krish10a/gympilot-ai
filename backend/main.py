@@ -21,25 +21,32 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-gemini_client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
+NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY", "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")
+nvidia_client = None
+if NVIDIA_API_KEY:
+    from openai import OpenAI
+    nvidia_client = OpenAI(
+        base_url="https://integrate.api.nvidia.com/v1",
+        api_key=NVIDIA_API_KEY
+    )
 
 
 def get_embedding(text: str) -> list[float]:
-    """Generate a 768-dim embedding via Gemini. Falls back to zeros if unavailable."""
-    if not gemini_client:
+    """Generate a 768-dim embedding via NVIDIA NIM (embed-qa-4). Falls back to zeros if unavailable."""
+    if not nvidia_client:
         return [0.0] * 768
     try:
-        response = gemini_client.models.embed_content(
-            model='gemini-embedding-2-preview',
-            contents=text,
-            config={'output_dimensionality': 768}
+        response = nvidia_client.embeddings.create(
+            input=[text],
+            model="nvidia/embed-qa-4"
         )
-        if hasattr(response, 'embeddings') and response.embeddings:
-            return response.embeddings[0].values
-        elif isinstance(response, dict) and 'embeddings' in response:
-            return response['embeddings'][0]['values']
-        return [0.0] * 768
+        vector = response.data[0].embedding
+        # Truncate or pad to exactly 768 dimensions to match Pinecone configuration
+        if len(vector) > 768:
+            return vector[:768]
+        elif len(vector) < 768:
+            return vector + [0.0] * (768 - len(vector))
+        return vector
     except Exception as e:
         print(f"Embedding error: {e}")
         return [0.0] * 768

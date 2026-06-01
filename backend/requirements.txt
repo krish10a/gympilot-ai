@@ -8,3 +8,4 @@ pinecone
 python-dotenv
 psycopg2-binary
 alembic
+openai

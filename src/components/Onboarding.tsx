@@ -59,7 +59,7 @@ const INPUT_FIELDS = [
 export const Onboarding: React.FC = () => {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { user } = useAppStore();
+  const { user, setUser } = useAppStore();
   const shouldReduce = useReducedMotion();
 
   const { register, handleSubmit, setValue, watch } = useForm<any>({
@@ -75,13 +75,53 @@ export const Onboarding: React.FC = () => {
     if (!user?.uid) return;
     setIsSubmitting(true);
     try {
+      // 1. Save to Firebase Firestore
       await setDoc(doc(db, 'users', user.uid), {
         ...data, uid: user.uid, email: user.email,
         onboarded: true, role: 'client',
         createdAt: Date.now(), updatedAt: Date.now(),
       });
-      toast.success('Welcome to GymPilot AI — Protocol Initialized!');
-    } catch {
+
+      // 2. Sync with the FastAPI backend database
+      const API_URL = import.meta.env.VITE_API_URL || '';
+      const res = await fetch(`${API_URL}/api/users`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          uid: user.uid,
+          email: user.email,
+          display_name: user.displayName || null,
+          photo_url: user.photoURL || null,
+          onboarded: true,
+          profile: {
+            age: data.age,
+            sex: data.sex,
+            height: data.height,
+            weight: data.weight,
+            goal: data.goal,
+            activity_level: data.activityLevel,
+            training_style: data.trainingStyle,
+          },
+        }),
+      });
+
+      if (res.ok) {
+        const syncedUser = await res.json();
+        // 3. Update the global Zustand store to trigger routing transition
+        setUser({
+          ...syncedUser.profile,
+          uid: syncedUser.uid,
+          email: syncedUser.email,
+          displayName: syncedUser.display_name,
+          photoURL: syncedUser.photo_url,
+          onboarded: syncedUser.onboarded,
+        });
+        toast.success('Welcome to GymPilot AI — Protocol Initialized!');
+      } else {
+        throw new Error('Backend sync failed');
+      }
+    } catch (err) {
+      console.error(err);
       toast.error('Failed to save profile. Please try again.');
     } finally {
       setIsSubmitting(false);
