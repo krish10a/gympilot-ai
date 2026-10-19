@@ -1,8 +1,19 @@
+const getApiBase = () => (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
+
+const safeParseJson = async (response: Response) => {
+  const text = await response.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+};
+
 export const apiService = {
   // Input Fusion (Text/Voice/Image) -> Structured Output
   async fuseInput(userId: string, type: 'meal' | 'workout', inputData: { text?: string; voice?: string; imageBase64?: string; mimeType?: string }) {
     try {
-      const API_URL = import.meta.env.VITE_API_URL || '';
+      const API_URL = getApiBase();
       const response = await fetch(`${API_URL}/api/agent/fuse`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -14,10 +25,10 @@ export const apiService = {
           mime_type: inputData.mimeType || null
         })
       });
-      if (!response.ok) throw new Error('Input Fusion failed');
-      return await response.json();
+      if (!response.ok) throw new Error(`Input Fusion failed with status: ${response.status}`);
+      return await safeParseJson(response);
     } catch (e) {
-      console.error(e);
+      console.error('fuseInput error:', e);
       return null;
     }
   },
@@ -25,8 +36,7 @@ export const apiService = {
   // Log a Meal to Postgres
   async logMeal(userId: string, structuredData: any) {
     try {
-      // Clean up the object to match backend schemas.MealLogCreate
-      const API_URL = import.meta.env.VITE_API_URL || '';
+      const API_URL = getApiBase();
       const logBody = {
         id: crypto.randomUUID(),
         user_id: userId,
@@ -44,10 +54,10 @@ export const apiService = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(logBody)
       });
-      if (!response.ok) throw new Error('Failed to log meal');
-      return await response.json();
+      if (!response.ok) throw new Error(`Failed to log meal with status: ${response.status}`);
+      return await safeParseJson(response);
     } catch (e) {
-      console.error(e);
+      console.error('logMeal error:', e);
       return null;
     }
   },
@@ -55,7 +65,7 @@ export const apiService = {
   // Log a Workout to Postgres
   async logWorkout(userId: string, structuredData: any) {
     try {
-      const API_URL = import.meta.env.VITE_API_URL || '';
+      const API_URL = getApiBase();
       const logBody = {
         id: crypto.randomUUID(),
         user_id: userId,
@@ -71,10 +81,10 @@ export const apiService = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(logBody)
       });
-      if (!response.ok) throw new Error('Failed to log workout');
-      return await response.json();
+      if (!response.ok) throw new Error(`Failed to log workout with status: ${response.status}`);
+      return await safeParseJson(response);
     } catch (e) {
-      console.error(e);
+      console.error('logWorkout error:', e);
       return null;
     }
   },
@@ -82,13 +92,13 @@ export const apiService = {
   // Get Coaching Insight (Pinecone semantic DB)
   async getCoachInsight(userId: string) {
     try {
-      const API_URL = import.meta.env.VITE_API_URL || '';
-      const response = await fetch(`${API_URL}/api/coach/insight?user_id=${userId}`, { method: 'GET' });
-      if (!response.ok) throw new Error('Failed to get coach insight');
-      const data = await response.json();
-      return data.insight_text || "Keep pushing towards your goals!";
+      const API_URL = getApiBase();
+      const response = await fetch(`${API_URL}/api/coach/insight?user_id=${encodeURIComponent(userId)}`, { method: 'GET' });
+      if (!response.ok) throw new Error(`Failed to get coach insight with status: ${response.status}`);
+      const data = await safeParseJson(response);
+      return data?.insight_text || "Keep pushing towards your goals!";
     } catch (e) {
-      console.error(e);
+      console.error('getCoachInsight error:', e);
       return "Keep pushing towards your goals!";
     }
   }

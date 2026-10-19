@@ -11,12 +11,16 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="GymPilot AI", version="1.0.0")
 
-# Allow origins from the FRONTEND_URL env var (comma-separated for multi-origin support)
-frontend_urls = os.getenv("FRONTEND_URL", "*").split(",")
+# Configure CORS for multi-origin and Vercel deployments
+frontend_env = os.getenv("FRONTEND_URL", "*")
+frontend_origins = [url.strip() for url in frontend_env.split(",") if url.strip()]
+is_wildcard = "*" in frontend_origins or not frontend_origins
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=frontend_urls,
-    allow_credentials=True,
+    allow_origins=["*"] if is_wildcard else frontend_origins,
+    allow_origin_regex=None if is_wildcard else r"https://.*\.vercel\.app",
+    allow_credentials=not is_wildcard,
     allow_methods=["*"],
     allow_headers=["*"],
 )
