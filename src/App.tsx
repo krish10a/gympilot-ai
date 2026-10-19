@@ -9,7 +9,7 @@ import { Onboarding } from './components/Onboarding';
 import { Toaster } from 'sonner';
 import { useEffect } from 'react';
 import { auth, signInWithGoogle } from './lib/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, getRedirectResult } from 'firebase/auth';
 import { motion, AnimatePresence } from 'motion/react';
 
 const TOASTER_STYLE = {
@@ -27,56 +27,79 @@ export default function App() {
   const { user, setUser, setIsLoading, isLoading } = useAppStore();
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        try {
-          const res = await fetch(`${API_URL}/api/users`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              uid: firebaseUser.uid,
-              email: firebaseUser.email || '',
-              display_name: firebaseUser.displayName ?? undefined,
-              photo_url: firebaseUser.photoURL ?? undefined,
-              onboarded: false,
-            }),
-          });
-          if (res.ok) {
-            const data = await res.json();
-            setUser({
-              ...data.profile,
-              uid: data.uid,
-              email: data.email,
-              displayName: data.display_name,
-              photoURL: data.photo_url,
-              onboarded: data.onboarded,
-              createdAt: data.profile?.createdAt ?? Date.now(),
-              updatedAt: data.profile?.updatedAt ?? Date.now(),
-            });
-          } else {
-            setUser({
-              uid: firebaseUser.uid,
-              email: firebaseUser.email || '',
-              displayName: firebaseUser.displayName || 'Athlete',
-              photoURL: firebaseUser.photoURL || undefined,
-              onboarded: true,
-              createdAt: Date.now(),
-              updatedAt: Date.now(),
-            });
-          }
-        } catch (err) {
-          console.error('Profile sync failed:', err);
+    // Check if user just returned from a Google sign-in redirect
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result?.user) {
+          const u = result.user;
           setUser({
-            uid: firebaseUser.uid,
-            email: firebaseUser.email || '',
-            displayName: firebaseUser.displayName || 'Athlete',
-            photoURL: firebaseUser.photoURL || undefined,
+            uid: u.uid,
+            email: u.email || '',
+            displayName: u.displayName || 'Athlete',
+            photoURL: u.photoURL || undefined,
             onboarded: true,
             createdAt: Date.now(),
             updatedAt: Date.now(),
           });
-        } finally {
           setIsLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.warn('Redirect sign-in check:', err);
+      });
+
+    const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        // Optimistically set the authenticated user immediately
+        const initialProfile = {
+          uid: firebaseUser.uid,
+          email: firebaseUser.email || '',
+          displayName: firebaseUser.displayName || 'Athlete',
+          photoURL: firebaseUser.photoURL || undefined,
+          onboarded: true,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        };
+        setUser(initialProfile);
+        setIsLoading(false);
+
+        // Background sync to backend if API_URL is provided
+        const normalizedApi = (API_URL || '').replace(/\/+$/, '');
+        if (normalizedApi) {
+          try {
+            const res = await fetch(`${normalizedApi}/api/users`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                uid: firebaseUser.uid,
+                email: firebaseUser.email || '',
+                display_name: firebaseUser.displayName ?? undefined,
+                photo_url: firebaseUser.photoURL ?? undefined,
+                onboarded: false,
+              }),
+            });
+            if (res.ok) {
+              const text = await res.text();
+              try {
+                const data = JSON.parse(text);
+                if (data && data.uid) {
+                  setUser({
+                    ...initialProfile,
+                    ...data.profile,
+                    uid: data.uid,
+                    email: data.email,
+                    displayName: data.display_name,
+                    photoURL: data.photo_url,
+                    onboarded: data.onboarded ?? true,
+                  });
+                }
+              } catch {
+                // Ignore parse errors from non-JSON responses
+              }
+            }
+          } catch (err) {
+            console.warn('Background profile sync warning:', err);
+          }
         }
       } else {
         setUser(null);
