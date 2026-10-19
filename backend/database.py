@@ -15,7 +15,14 @@ if DATABASE_URL.startswith("postgres://"):
 if DATABASE_URL.startswith("sqlite"):
     engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 else:
-    engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+    try:
+        engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+    except Exception:
+        if DATABASE_URL.startswith("postgresql://") and not DATABASE_URL.startswith("postgresql+"):
+            fallback_url = DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
+            engine = create_engine(fallback_url, pool_pre_ping=True)
+        else:
+            raise
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

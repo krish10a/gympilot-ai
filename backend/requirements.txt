@@ -7,5 +7,6 @@ google-genai
 pinecone
 python-dotenv
 psycopg2-binary
+psycopg[binary]
 alembic
 openai
