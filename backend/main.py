@@ -7,7 +7,10 @@ from google import genai
 from database import engine, Base, get_db
 import models, schemas, agents, memory
 
-Base.metadata.create_all(bind=engine)
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception as e:
+    print(f"[GymPilot Backend] Database init warning (tables will be verified on first request): {e}")
 
 app = FastAPI(title="GymPilot AI", version="1.0.0")
 
