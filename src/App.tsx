@@ -50,10 +50,31 @@ export default function App() {
               displayName: data.display_name,
               photoURL: data.photo_url,
               onboarded: data.onboarded,
+              createdAt: data.profile?.createdAt ?? Date.now(),
+              updatedAt: data.profile?.updatedAt ?? Date.now(),
+            });
+          } else {
+            setUser({
+              uid: firebaseUser.uid,
+              email: firebaseUser.email || '',
+              displayName: firebaseUser.displayName || 'Athlete',
+              photoURL: firebaseUser.photoURL || undefined,
+              onboarded: true,
+              createdAt: Date.now(),
+              updatedAt: Date.now(),
             });
           }
         } catch (err) {
           console.error('Profile sync failed:', err);
+          setUser({
+            uid: firebaseUser.uid,
+            email: firebaseUser.email || '',
+            displayName: firebaseUser.displayName || 'Athlete',
+            photoURL: firebaseUser.photoURL || undefined,
+            onboarded: true,
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+          });
         } finally {
           setIsLoading(false);
         }
