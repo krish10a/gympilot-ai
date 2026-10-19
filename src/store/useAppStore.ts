@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { UserProfile, DailySummary, Alert } from '../types';
 
 interface AppState {
@@ -13,14 +14,22 @@ interface AppState {
   setIsLoading: (loading: boolean) => void;
 }
 
-export const useAppStore = create<AppState>((set) => ({
-  user: null,
-  setUser: (user) => set({ user }),
-  dailySummary: null,
-  setDailySummary: (summary) => set({ dailySummary: summary }),
-  alerts: [],
-  setAlerts: (alerts) => set({ alerts }),
-  addAlert: (alert) => set((state) => ({ alerts: [alert, ...state.alerts] })),
-  isLoading: true,
-  setIsLoading: (loading) => set({ isLoading: loading }),
-}));
+export const useAppStore = create<AppState>()(
+  persist(
+    (set) => ({
+      user: null,
+      setUser: (user) => set({ user }),
+      dailySummary: null,
+      setDailySummary: (summary) => set({ dailySummary: summary }),
+      alerts: [],
+      setAlerts: (alerts) => set({ alerts }),
+      addAlert: (alert) => set((state) => ({ alerts: [alert, ...state.alerts] })),
+      isLoading: false,
+      setIsLoading: (loading) => set({ isLoading: loading }),
+    }),
+    {
+      name: 'gympilot-user-storage',
+      partialize: (state) => ({ user: state.user }),
+    }
+  )
+);
